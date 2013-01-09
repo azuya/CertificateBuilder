@@ -34,8 +34,8 @@ http://www.broculos.net/
 
 Installation
 ------------
-1. Install the CertificateBuilder folder on a web server with PHP 5+ and 
-   a copy of the wkhtmltopdf binary appropriate for the OS on your server
+1. Install the CertificateBuilder folder on a web server with PHP 5.3+ 
+   and a copy of the wkhtmltopdf binary appropriate for the OS on your server
 2. Make a temp folder that is writable by the web server but not 
    accessible to users
 3. Setup the 'config.php' file
@@ -163,7 +163,7 @@ the page-size setting if it is also provided.
                     Both values must be provided and will override the 
                     'page-size' setting.
     margins[xx] : Page margins in millimeters for 'top', 'bottom', 
-                  'left' and 'right'.
+                  'left' and 'right'. Requires PHP 5.3+.
                     Default '10 mm' if not specified.
     grayscale   : PDF will be generated in grayscale.
                     Default 'false' if not set.
