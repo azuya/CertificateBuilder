@@ -1,0 +1,210 @@
+About
+-----
+CertificateBuilder was developed as a certificate engine for use in 
+Blackboard. While it was specifcaly designed for Blackboard in mind, 
+it can be used for other system.
+
+Build a HTML template as a web page with placeholders for information 
+and add it into a template folder, then simply post to the certificate 
+engine from a web form telling it which template to use and the 
+information to be inserted into the placeholders. The render engine 
+processes the template and returns a PDF download of the certificate.
+
+It uses wkhtmltopdf to generate the PDF making the users platform and 
+browser irrelevant.
+
+If you use this engine, please send me an email to let me know what your 
+using it for.
+
+Author
+------
+Kurt Otto (kurt@ottopia.com.au)
+
+This project incorporates the following third party components:
+
+wkhtmltopdf
+http://code.google.com/p/wkhtmltopdf/
+
+class.Wkhtmltopdf.php
+https://github.com/aur1mas/Wkhtmltopdf
+
+class.Template.php
+http://www.broculos.net/
+
+
+Installation
+------------
+1. Install the CertificateBuilder folder on a web server with PHP 5+ and 
+   a copy of the wkhtmltopdf binary appropriate for the OS on your server
+2. Make a temp folder that is writable by the web server but not 
+   accessible to users
+3. Setup the 'config.php' file
+3. Create a web form that posts data to certificate.php
+
+If your not sure how to do all this, please find a nice friendly 
+Systems Administrator to assist you.
+
+
+Directory structure
+-------------------
+CertificateBuilder/
+  |-- certificate.php
+  |-- classes/
+      |-- class.Template.php
+      |-- Wkhtmltopdf/
+          |-- class.Wkhtmltopdf.php
+  |-- config.php
+  |-- render.php
+  |-- templates/
+
+
+Usage
+-----
+Create a certificate template in the template folder with an 'ini' and 
+'tpl' file with matching names. Additional files can be included such 
+as stylesheets and images. 'href' and 'src' paths should be relative 
+to the CetificateBuilder root directory (e.g. "templates/[template name]/É).
+Links in the CSS will be relative to the CSS file.
+
+Template directory structure:
+templates/
+  [template name]/
+  |-- [template name].ini
+  |-- [template name].tpl
+  default/
+  |-- default.ini
+  |-- default.tpl
+
+Variable/placeholder names are your choice except for the reserved names 
+below. The webform can be populated with variables from your site.
+
+For example, a Blackboard site might have an adaptive release item with 
+a form:
+
+<form action="http://mycertificateserver.com.au/CertificateBuilder/certificate.php" method="post">
+	<label>Get certificate for @X@user.full_name@X@</label>
+	<input name="full_name" value="@X@user.full_name@X@" type="hidden" />
+	<input name="template" value="mytemplatename" type="hidden" />
+	<input value="Submit" type="submit" />
+</form>
+
+@X@user.full_name@X@ is a Blackboard variable and would be replaced with 
+the current users full name. Submitting this form would then send the 
+users full name to the certificate engine in a variable named 'full_name', 
+and replace the placeholder in the template of the same name.
+
+Blackboard variables:
+http://www.edugarage.com/display/BBDN/Template+variables#Templatevariables-USING
+
+Reserved variables:
+These varibales names should not be used for any other purpose.
+   date_format<suffix>
+       Will automatically generate a date key with option suffix 
+       containing the date generated using the date_format 
+       provided. For Example, 'date_format' = 'j M, Y' will generate 
+       a key 'date' = '7 January, 2013' where as 
+       'date_format_day' = 'jS' will generate 'date_day' = '7th'.
+   date<suffix>
+       Automatically generated as above.
+   template
+       Defines which template to use. For example, 'template' = 'award' 
+       selects a template named 'award'.
+
+If a template name is not sent to the render engine, it will try to use 
+a template named 'default' and if it cannot find a 'default' template, it 
+will break.
+
+Template ini file
+-----------------
+The template ini file contains information for the template and the PDF 
+engine. This configuration file is broken into two sections. The first 
+section applies settings to the PDF file generator, while the second 
+applies settings to the template file. Lines starting with semi-colons (;) 
+are comments and are not required.
+
+Template settings:
+These settings are applied directly to the certificate template layout. 
+Variables matching placeholders within the template will be replaced 
+with the value stored in the variable. For example, a variable 
+'cert_title = "Certificate of Excellence"' will replace the placeholder 
+'[[cert_title]]' in the template with 'Certificate of Excellence'. While 
+there is no reason you would not simply hard-code those settings into 
+the template itself, putting them in the ini file can allow for easy 
+modification later.
+
+    date_format : A reserved variable with special properties to format 
+                  the date.
+                    Refer 'http://php.net/manual/en/function.date.php' 
+                    for valid characters. 'date_format' followed by 
+                    addition text will generate a 'date' key with the 
+                    corresponding text. For example, 'date_format_day' 
+                    and will generate a variable 'date_day' and 
+                    'date_format_1' will generate a variable 'date_1'. 
+                    See 'render.php' for more information.
+
+Note: The date can be sent through manually pre-formatted using the 
+'date<suffix>' variable which will override the automatic date generation, 
+even if a matching 'date_format<suffix>' varible is also supplied.
+
+PDF settings:
+These settings are applied to the PDF file that is generated. If the 
+setting is not included in the ini file, the default settings will be 
+used. Note, page height and width can be set, and will override 
+the page-size setting if it is also provided.
+    title       : The title of the generated pdf file.
+                    Default 'Untitled PDF' if not specified.
+    orientation : Page orientation set to 'Portrait' or 'Landscape'.
+                    Default 'Portrait' if not specified.
+    page-size   : A series (e.g. A4, A3), B series (e.g. B5, B3), 
+                  Executive, Folio, Legal, Letter, Tabloid.
+                    Default 'A4' if not specified.
+    page-height : Page height in millimeters.
+    page-width  : Page width in millimeters.
+                    Both values must be provided and will override the 
+                    'page-size' setting.
+    margins[xx] : Page margins in millimeters for 'top', 'bottom', 
+                  'left' and 'right'.
+                    Default '10 mm' if not specified.
+    grayscale   : PDF will be generated in grayscale.
+                    Default 'false' if not set.
+
+Sample template ini file:
+
+[pdf]
+title           = "My Certificate"
+orientation     = Portrait
+page_size       = A4
+margins[top]    = 0.0
+margins[bottom] = 0.0
+margins[left]   = 0.0
+margins[right]  = 0.0
+
+[template]
+date_format   = "j F, Y"
+
+
+Advanced usage
+--------------
+The placeholders within the 'tpl' file don't have to be just content. It
+can be any part of the page. You could for example, change HTML code on 
+the page.
+
+Example:
+You may have a certificate title that you would like to be different for
+each course, and make different style classes for them.
+
+Course 1:
+<h1 class="fancy">Certificate of Excellence</h1>
+
+Course 2:
+<h1 class="reallyfancy">Certificate of Excellence</h1>
+
+Instead of making two certificate templates, you could use a variable 
+for the class name and send that from the form.
+
+In the template you would have:
+<h1 class="[[type]]">Certificate of Excellence</h1>
+
+And the form would have an input to set which class style to use:
+<input name="type" value="fancy" type="hidden" />
+
