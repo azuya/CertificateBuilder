@@ -1,7 +1,7 @@
 About
 -----
 CertificateBuilder was developed as a certificate engine for use in 
-Blackboard. While it was specifcaly designed for Blackboard in mind, 
+Blackboard. While it was specificaly designed for Blackboard in mind, 
 it can be used for other system.
 
 Build a HTML template as a web page with placeholders for information 
@@ -15,6 +15,12 @@ browser irrelevant.
 
 If you use this engine, please send me an email to let me know what your 
 using it for.
+
+Known issues
+------------
+The Wkhtmltopdf class relies on STDOUT from wkhtmltopdf, which appears to 
+be broken on the Windows version (v0.11.0). As such this engine currently 
+only works with the linux (and possibly the OSX) binary.
 
 Author
 ------
@@ -63,7 +69,7 @@ Usage
 Create a certificate template in the template folder with an 'ini' and 
 'tpl' file with matching names. Additional files can be included such 
 as stylesheets and images. 'href' and 'src' paths should be relative 
-to the CetificateBuilder root directory (e.g. "templates/[template name]/É).
+to the CetificateBuilder root directory (e.g. "templates/[template name]/ï¿½).
 Links in the CSS will be relative to the CSS file.
 
 Template directory structure:
